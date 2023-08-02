@@ -1,53 +1,33 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
-import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as cognito from "aws-cdk-lib/aws-cognito";
-import * as appsync from "aws-cdk-lib/aws-appsync";
+import { createAppSyncApi } from "./appsync-api";
+import { createDynamoDbTable } from "./dynamodb-table";
+import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as path from "path";
 
 export class BackendStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const ideasTable = new dynamodb.Table(this, "Ideas", {
-      partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
-      sortKey: { name: "createdAt", type: dynamodb.AttributeType.STRING },
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+    const api = createAppSyncApi(this, "ideaTreeApi");
+
+    // const table = createDynamoDbTable(this, "ideaTreeTable");
+
+    const getUserLambda = new lambda.Function(this, "getUserHandler", {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      code: lambda.Code.fromAsset(path.join(__dirname, "../lambda/getUser")),
+      handler: "index.handler",
     });
 
-    const userPool = new cognito.UserPool(this, "ideaTreeUserPool", {
-      selfSignUpEnabled: true,
-      signInAliases: { email: true },
-      autoVerify: { email: true },
-      passwordPolicy: {
-        minLength: 8,
-        requireLowercase: false,
-        requireUppercase: false,
-        requireDigits: false,
-        requireSymbols: false,
-      },
-    });
-
-    const userPoolClient = new cognito.UserPoolClient(
-      this,
-      "ideaTreeUserPoolClient",
-      {
-        userPool,
-        generateSecret: false,
-      }
+    const getUserDataSource = api.addLambdaDataSource(
+      "getUserDataSource",
+      getUserLambda
     );
 
-    const api = new appsync.GraphqlApi(this, "ideaTreeApi", {
-      name: "idea-tree-api",
-      schema: appsync.SchemaFile.fromAsset("graphql/schema.graphql"),
-      authorizationConfig: {
-        defaultAuthorization: {
-          authorizationType: appsync.AuthorizationType.USER_POOL,
-          userPoolConfig: {
-            userPool,
-          },
-        },
-      },
-      xrayEnabled: true,
+    getUserDataSource.createResolver("ideaTreeApi", {
+      typeName: "Query",
+      fieldName: "getUser",
     });
   }
 }

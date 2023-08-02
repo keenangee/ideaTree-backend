@@ -1,17 +1,6 @@
-type Idea {
-  id: ID!
-  idea: String!
-  description: String
-  createdAt: AWSDateTime!
-}
-
-type User {
-  userId: ID!
-  username: String!
-  email: String!
-  dailyIdeas: [Idea]
-  topDailyIdeas: [Idea]
-  topWeeklyIdeas: [Idea]
+schema {
+  query: Query
+  mutation: Mutation
 }
 
 type Query {
@@ -32,16 +21,27 @@ type Mutation {
   updateTopWeeklyIdea(id: ID!, idea: String!, updateIdea: IdeaInput): Idea
 }
 
-input IdeaInput {
+type Idea {
   id: ID!
   idea: String!
   description: String
   createdAt: AWSDateTime!
 }
 
-schema {
-  query: Query
-  mutation: Mutation
+type User {
+  userId: ID!
+  username: String!
+  email: String!
+  dailyIdeas: [Idea]
+  topDailyIdeas: [Idea]
+  topWeeklyIdeas: [Idea]
+}
+
+input IdeaInput {
+  id: ID!
+  idea: String!
+  description: String
+  createdAt: AWSDateTime!
 }
 
 scalar AWSDateTime
