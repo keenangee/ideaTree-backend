@@ -4,21 +4,21 @@ schema {
 }
 
 type Query {
-  getUser(id: ID!): User
-  getDailyIdeas(userId: ID!): [Idea]
-  getTopDailyIdeas(userId: ID!): [Idea]
-  getTopWeeklyIdeas(userId: ID!): [Idea]
+  getUser(userId: ID!): User
+  getIdeas(userId: ID!, level: String!): userIdeas
 }
 
 type Mutation {
   createUser(username: String!, email: String!): User
-  createIdea(userId: ID!, idea: String!, description: String): Idea
-  addToDailyIdeas(userId: ID!, ideaId: ID!): User
-  addToTopDailyIdeas(userId: ID!, ideaId: ID!): User
-  addToTopWeeklyIdeas(userId: ID!, ideaId: ID!): User
-  updateDailyIdea(id: ID!, idea: String!, updateIdea: IdeaInput): Idea
-  updateTopDailyIdea(id: ID!, idea: String!, updateIdea: IdeaInput): Idea
-  updateTopWeeklyIdea(id: ID!, idea: String!, updateIdea: IdeaInput): Idea
+  addIdea(userId: ID!, level: String!, idea: IdeaInput!): Idea
+  updateIdea(userId: ID!, level: String!, id: ID!, updateIdea: IdeaInput): Idea
+  deleteIdea(userId: ID!, level: String!, id: ID!): Idea
+}
+
+type userIdeas {
+  userId: ID!
+  level: String!
+  ideas: [Idea]
 }
 
 type Idea {
@@ -30,18 +30,16 @@ type Idea {
 
 type User {
   userId: ID!
+  level: String!
   username: String!
   email: String!
-  dailyIdeas: [Idea]
-  topDailyIdeas: [Idea]
-  topWeeklyIdeas: [Idea]
+  ideas: [Idea]
 }
 
 input IdeaInput {
   id: ID!
   idea: String!
   description: String
-  createdAt: AWSDateTime!
 }
 
 scalar AWSDateTime

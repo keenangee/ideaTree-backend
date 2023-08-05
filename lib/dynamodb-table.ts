@@ -6,8 +6,8 @@ export function createDynamoDbTable(
   id: string
 ): dynamodb.Table {
   return new dynamodb.Table(scope, id, {
-    partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
-    sortKey: { name: "createdAt", type: dynamodb.AttributeType.STRING },
+    partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
+    sortKey: { name: "level", type: dynamodb.AttributeType.STRING },
     billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
   });
 }

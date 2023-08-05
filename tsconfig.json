@@ -1,6 +1,6 @@
 {
   "include": ["lambda/**/*.ts"],
-  "exclude": ["node_modules", "cdk.out"],
+  "exclude": ["node_modules", "cdk.out", "types"],
   "compilerOptions": {
     "esModuleInterop": true,
     "resolveJsonModule": true,
